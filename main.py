@@ -10,7 +10,7 @@ import requests
 default_save_dir = os.path.join(os.getcwd(), 'serials')
 
 
-def download_wget(file_link: str) -> str:
+def download_wget(file_link: str):
     if not validate_url(file_link):
         raise RuntimeError(f'NOT VALID url={file_link}')
     [serial_name, file_name] = parse_file_name(file_link)
@@ -18,6 +18,10 @@ def download_wget(file_link: str) -> str:
     print(f'SERIAL_NAME:{serial_name},FILE NAME:{file_name}')
     print(f'DIR:{dir_path}')
     file_path = os.path.join(dir_path, file_name)
+    if os.path.isfile(file_path):
+        print(f'File exists:{file_path}')
+        # @TODO remove old files endWith `.tmp` and startWith `{file_name}`
+        return None
     try:
         data = wget.download(file_link, out=file_path)
     except URLError as e:
@@ -122,6 +126,7 @@ if __name__ == '__main__':
     next_video_url = next_video(url)
     while next_video_url:
         video = download_wget(next_video_url)
-        print(f'DONE {video}')
+        if video:
+            print(f'DONE {video}')
         next_video_url = next_video(next_video_url)
     print(f'Serial download {serial_name}')
